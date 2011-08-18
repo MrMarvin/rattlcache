@@ -1,5 +1,6 @@
 require 'backend_manager'
 require 'net/http'
+require 'base64'
 
 module Rattlecache
 
@@ -24,11 +25,11 @@ module Rattlecache
       urlObj = URI.parse(objectKey)
       key = urlObj.host
       key << urlObj.path
-      key << sortParams(urlObj.query)
-      URI.escape(key)
+      key << sort_params(urlObj.query)
+      Base64.encode64(key)
     end
 
-    def sortParams(query)
+    def sort_params(query)
       q = Hash.new
       query.split("&").each do |parampair|
         q[parampair.split("=")[0]] = parampair.split("=")[1]
