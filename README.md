@@ -1,0 +1,2 @@
+Rattlecache is an abstraction layer between the battle.net API and Libraries (in particular Rattlenet) that consume it.
+I allows for multiple backends (in which the json objects are stored) and takes care of caching timers for the objects.
