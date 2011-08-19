@@ -1,6 +1,6 @@
 require 'backend_manager'
 require 'net/http'
-require 'base64'
+require 'digest/sha2'
 
 module Rattlecache
 
@@ -16,17 +16,17 @@ module Rattlecache
     end
 
     def post(object)
-      puts "Cache class gets you: #{objectKey}"
-      @backend.post({sanitize(object[:key]),object[:data]})
+      puts "Cache class puts: #{object[:key]}"
+      @backend.post({:key => sanitize(object[:key]),:data => object[:data]})
     end
 
     def sanitize(objectKey)
-      # strip scheme, sort paramters and encode URL style
+      # strip scheme, sort paramters and encode for safty
       urlObj = URI.parse(objectKey)
       key = urlObj.host
       key << urlObj.path
       key << sort_params(urlObj.query)
-      Base64.encode64(key)
+      Digest::SHA256.hexdigest(key)
     end
 
     def sort_params(query)

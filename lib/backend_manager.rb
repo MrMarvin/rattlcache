@@ -18,7 +18,7 @@ module Rattlecache
         raise InvalidBackend.new("#{backend_name.to_s} is not a valid backend!")
       end
 
-      backend_class = adapters[adapter_name]
+      backend_class = @backends[backend_name]
       return load_backend(backend_name, backend_class)
     end
 
@@ -33,13 +33,13 @@ module Rattlecache
           klass = Rattlecache::Backend.const_get("#{klass_name}", false)
         rescue NameError
           begin
-            backend_file = "rattlecache/backends/#{backend_name.to_s}"
+            backend_file = "backends/#{backend_name.to_s}"
             require backend_file
             klass = Rattlecache::Backend.const_get("#{klass_name}", false)
           rescue LoadError
-            raise InvalidAdapter.new("backend #{klass_name} does not exist, and file #{backend_file} does not exist")
+            raise InvalidBackend.new("backend #{klass_name} does not exist, and file #{backend_file} does not exist")
           rescue NameError
-            raise InvalidAdapter.new("expected #{backend_file} to define Rattlecache::Backend::#{klass_name}")
+            raise InvalidBackend.new("expected #{backend_file} to define Rattlecache::Backend::#{klass_name}")
           end
         end
 
