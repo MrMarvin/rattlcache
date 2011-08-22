@@ -7,7 +7,10 @@ module Rattlecache
   class Cache
 
     # @param backend [Symbol]
-    def initialize(backend = :filesystem)
+    # @param adapter [Battlenet::Adapter::AbstractAdapter]
+    def initialize(backend = :filesystem, adapter = nil)
+      puts "Debug: rattlecache adapter: #{adapter}"
+      @adapter = adapter
       @backend = Rattlecache::Backend.fetch(backend)
     end
 
@@ -18,10 +21,26 @@ module Rattlecache
       "else" => "cache it for as long as 'RETRY-AFTER'-responseheader told us. (600 sec)"
     }
 
-    # @param objectKey [String]
-    def get(objectKey)
+    # @param url [String]
+    # @param header [Hash]
+    def get(url, header = nil)
+      @header = header
+      @header['User-Agent'] = @header['User-Agent'] << " (with rattlecache)"
       #puts "Cache class gets you: #{objectKey}"
-      @backend.get(sanitize(objectKey))
+
+      # what to do with this request?
+      case request_type(url)
+        when "guild"
+          puts "Debug: its a guild related request!"
+          require 'caches/guildcache'
+          Rattlecache::Guildcache.new(@backend,@adapter).get(url,header)
+        when "data"
+          foo
+        when "auction"
+          bar
+        else
+          @backend.get(sanitize(url))
+      end
     end
 
     # @param object [Hash]
@@ -33,7 +52,7 @@ module Rattlecache
     # @param headerline [Hash]
     # @param mtime [Time]
     # @return [TrueClass|FalseClass]
-    def needs_request?(headerline,mtime)
+    def generic_needs_request?(headerline,mtime)
       header = JSON.parse(headerline)
       #header["date"][0] is a String with CGI.rfc1123_date() encoded time,
       # as there is no easy method to inverse this coding, I will keep using the files mtime
@@ -41,7 +60,7 @@ module Rattlecache
       unless header["retry-after"].nil?
         mtime+(header["retry-after"][0].to_i) < Time.now()
       else
-        # stupid manual seconds to week multiply
+      # stupid seconds to week multiplication
         mtime+(60*60*24*7) < Time.now()
       end
     end
@@ -72,13 +91,22 @@ module Rattlecache
     # @param objectKey [String]
     # @return [String]
     def request_type(objectKey)
-      URI.parse(objectKey).path.split("/")[1]
+      #[0] = "". [1]= "api". [2]="wow", [3]= what we want
+      URI.parse(objectKey).path.split("/")[3]
     end
 
     # @param query [String]
     # @return [TrueClass|FalseClass]
     def has_fields?(query)
       not query.scan(/fields=/).empty?
+    end
+
+    # @param url [String]
+    # @param header [Hash]
+    # @return [Net::HTTPResponse]
+    def request_raw(url,header)
+      req = @adapter.get(url,header,true)
+      req.get(url,header)
     end
 
   end
