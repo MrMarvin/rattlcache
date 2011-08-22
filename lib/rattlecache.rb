@@ -34,13 +34,19 @@ module Rattlecache
           puts "Debug: its a guild related request!"
           require 'caches/guildcache'
           Rattlecache::Guildcache.new(@backend,@adapter).get(url,header)
-        when "data"
-          foo
         when "auction"
           bar
         else
-          @backend.get(sanitize(url))
+          puts "Debug: its a boring request!"
+          check_and_return(@backend.get(sanitize(url)))
       end
+    end
+
+    def check_and_return(backend_result)
+      if backend_result[:status] == 200 and generic_needs_request?(backend_result[:header],backend_result[:lastModified])
+        backend_result = {:status => 404}
+      end
+      backend_result
     end
 
     # @param object [Hash]
@@ -57,12 +63,19 @@ module Rattlecache
       #header["date"][0] is a String with CGI.rfc1123_date() encoded time,
       # as there is no easy method to inverse this coding, I will keep using the files mtime
       # to estimate when the data was last recieved.
-      unless header["retry-after"].nil?
-        mtime+(header["retry-after"][0].to_i) < Time.now()
+      unless header["cache-control"].nil?
+        mtime+header["cache-control"][0].split("=")[1].to_i < Time.now()
       else
-      # stupid seconds to week multiplication
-        mtime+(60*60*24*7) < Time.now()
+        unless header["retry-after"].nil?
+          mtime+(header["retry-after"][0].to_i) < Time.now()
+        else
+          # if we dont find any hint, pull it again!
+          puts "Warning: Cache couldn't find any hint if this object is still valid!"
+          true
+        end
+
       end
+
     end
 
     # @param objectKey [String]
