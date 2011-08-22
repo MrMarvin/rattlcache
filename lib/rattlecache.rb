@@ -58,5 +58,9 @@ module Rattlecache
       "?"+s.join("&")
     end
 
+    def has_fields?(query)
+      not query.scan(/fields=/).empty?
+    end
+
   end
 end
