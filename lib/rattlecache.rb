@@ -58,6 +58,10 @@ module Rattlecache
       "?"+s.join("&")
     end
 
+    def request_type(objectKey)
+      URI.parse(objectKey).path.split("/")[1]
+    end
+
     def has_fields?(query)
       not query.scan(/fields=/).empty?
     end
