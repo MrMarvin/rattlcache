@@ -50,7 +50,7 @@ module Rattlecache
 
       def open_file(objectKey,how="r")
         begin
-          make_shure_dir_exists()
+          make_sure_dir_exists()
           File.open(@prefix+objectKey,how)
         rescue
           # raise this to the caller
@@ -65,7 +65,7 @@ module Rattlecache
       def flush()
         make_sure_dir_exists()
         Dir.foreach(@prefix) do |file|
-          File.delete(file) if File.file?(file)
+          File.delete(@prefix+file) unless File.directory?(file)
         end
       end
 

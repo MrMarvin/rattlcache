@@ -25,7 +25,7 @@ module Rattlecache
     # @param header [Hash]
     def get(url, header = nil)
       @header = header
-      @header['User-Agent'] = @header['User-Agent'] << " (with rattlecache)"
+      @header['User-Agent'] = @header['User-Agent'] << " (with rattlecache)" unless header.nil?
       #puts "Cache class gets you: #{objectKey}"
 
       # what to do with this request?
@@ -71,6 +71,14 @@ module Rattlecache
       @backend.post({:key => sanitize(object[:key]), :header => object[:header], :data => object[:data]})
     end
 
+    def delete(url)
+      @backend.delete(sanitize(url))
+    end
+
+    def flush
+      @backend.flush()
+    end
+
     # @param headerline [Hash]
     # @param mtime [Time]
     # @return [TrueClass|FalseClass]
@@ -110,6 +118,9 @@ module Rattlecache
     # @param query [String]
     # @return [String]
     def sort_params(query)
+      if query.nil? or query.empty?
+        return ""
+      end
       q = Hash.new
       query.split("&").each do |parampair|
         q[parampair.split("=")[0]] = parampair.split("=")[1]
