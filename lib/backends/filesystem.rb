@@ -58,8 +58,15 @@ module Rattlecache
         end
       end
 
-      def make_shure_dir_exists()
+      def make_sure_dir_exists()
         Dir.mkdir(@prefix) unless File.directory?(@prefix)
+      end
+
+      def flush()
+        make_sure_dir_exists()
+        Dir.foreach(@prefix) do |file|
+          File.delete(file) if File.file?(file)
+        end
       end
 
     end
