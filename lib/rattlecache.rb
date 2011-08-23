@@ -38,8 +38,10 @@ module Rattlecache
           puts "Debug: its a character related request!"
           require 'caches/Fieldsrequestcache'
           Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
-        when "auction"
-          bar
+        when /auction.*/
+          puts "Debug: its a auchtion related request!"
+          require 'caches/Auctionscache'
+          Rattlecache::Auctionscache.new(@backend,@adapter).get(url,header)
         when "item"
           # for items it seems reasonable to cache them at least for a week
           # a week in seconds: 60*60*24*7 = 604800
