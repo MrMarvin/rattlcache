@@ -6,12 +6,9 @@ Gem::Specification.new do |s|
   s.version     = "0.1"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Marv Cool"]
-  s.email       = ["marv@hostin.is"]
+  s.email       = "marv@hostin.is"
   s.homepage    = ""
-  s.summary     = %q{A caching system for battlenet API Requests.}
-  s.description = %q{A caching system for battlenet API Requests.}
-
-  #s.add_dependency "ruby-hmac"
+  s.summary     = %q{A smart caching system for battlenet API Requests.}
 
   if s.respond_to?(:add_development_dependency)
     s.add_development_dependency "rspec"
