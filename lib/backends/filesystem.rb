@@ -40,6 +40,14 @@ module Rattlecache
         #puts "Debug: filesystem posted #{object[:key]}"
       end
 
+      def delete(object_key)
+        begin
+          File.delete(@prefix+object_key)
+        rescue Errno::ENOENT
+
+        end
+      end
+
       def open_file(objectKey,how="r")
         begin
           Dir.mkdir(@prefix) unless File.directory?(@prefix)
