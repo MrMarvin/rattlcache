@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Marv Cool"]
   s.email       = "marv@hostin.is"
-  s.homepage    = ""
+  s.homepage    = "https://github.com/MrMarvin/rattlcache/wiki"
   s.summary     = %q{A smart caching system for battlenet API Requests.}
 
   if s.respond_to?(:add_development_dependency)
