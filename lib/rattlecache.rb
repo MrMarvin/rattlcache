@@ -32,8 +32,12 @@ module Rattlecache
       case request_type(url)
         when "guild"
           puts "Debug: its a guild related request!"
-          require 'caches/guildcache'
-          Rattlecache::Guildcache.new(@backend,@adapter).get(url,header)
+          require 'caches/Fieldsrequestcache'
+          Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
+        when "character"
+          puts "Debug: its a character related request!"
+          require 'caches/Fieldsrequestcache'
+          Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
         when "auction"
           bar
         when "item"

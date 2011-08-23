@@ -1,5 +1,5 @@
 module Rattlecache
-  class Guildcache < Cache
+  class Fieldsrequestcache < Cache
 
 
     # @param backend [Rattlecache::Backend]
