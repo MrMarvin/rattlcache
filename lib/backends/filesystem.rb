@@ -50,12 +50,16 @@ module Rattlecache
 
       def open_file(objectKey,how="r")
         begin
-          Dir.mkdir(@prefix) unless File.directory?(@prefix)
+          make_shure_dir_exists()
           File.open(@prefix+objectKey,how)
         rescue
           # raise this to the caller
           raise
         end
+      end
+
+      def make_shure_dir_exists()
+        Dir.mkdir(@prefix) unless File.directory?(@prefix)
       end
 
     end
