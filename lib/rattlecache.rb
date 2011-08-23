@@ -36,15 +36,25 @@ module Rattlecache
           Rattlecache::Guildcache.new(@backend,@adapter).get(url,header)
         when "auction"
           bar
+        when "item"
+          # for items it seems reasonable to cache them at least for a week
+          # a week in seconds: 60*60*24*7 = 604800
+          check_and_return(@backend.get(sanitize(url)),604800)
         else
           puts "Debug: its a boring request!"
           check_and_return(@backend.get(sanitize(url)))
       end
     end
 
-    def check_and_return(backend_result)
-      if backend_result[:status] == 200 and generic_needs_request?(backend_result[:header],backend_result[:lastModified])
-        backend_result = {:status => 404}
+    def check_and_return(backend_result,given_time = nil)
+      if given_time.nil?
+        if backend_result[:status] == 200 and generic_needs_request?(backend_result[:header],backend_result[:lastModified])
+          backend_result = {:status => 404}
+        end
+      else
+        if backend_result[:status] == 200 and needs_request_with_given_time?(given_time,backend_result[:lastModified])
+          backend_result = {:status => 404}
+        end
       end
       backend_result
     end
@@ -73,9 +83,11 @@ module Rattlecache
           puts "Warning: Cache couldn't find any hint if this object is still valid!"
           true
         end
-
       end
+    end
 
+    def needs_request_with_given_time?(given_time,mtime)
+      mtime+given_time < Time.now
     end
 
     # @param objectKey [String]
