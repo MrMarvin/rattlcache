@@ -58,7 +58,7 @@ module Rattlecache
         cached_data = @backend.get(sanitize(generic_auctions_url(url)))
       end
       # this a JS milliseconds timestamp, we only do seconds!
-      Time.at(JSON.parse(cached_data[:object])["lastModified"]/1000)
+      Time.at(JSON.parse(cached_data[:object])["files"][0]["lastModified"]/1000)
     end
 
     def request_generic(url,header)
@@ -72,7 +72,7 @@ module Rattlecache
 
     def generic_auctions_url(url)
       u = URI.parse(url)
-      u.path=(u.path.gsub("-data","/data").gsub(/\/auctions.*\.json$/,""))
+      u.path=("/api/wow/"+u.path.gsub("-data","/data").gsub(/\/auctions.*\.json$/,""))
       u.to_s
     end
   end
