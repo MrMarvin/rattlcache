@@ -19,9 +19,9 @@ module Rattlecache
       # If yes, request without fields and look into ['lastModified']
       # if we need to fetch new or answer with our cached result.",
       if cached_data[:status] == 200
-        puts "Debug: Auctionscache: cache HIT for #{url}"
+        #puts "Debug: Auctionscache: cache HIT for #{url}"
         unless is_lmt_and_url_request(url)
-          puts "Debug: Auctionscache: has fields. Timethings: #{cached_data[:lastModified]} < #{get_lmt(url,header)} #{cached_data[:lastModified] < get_lmt(url,header)}"
+          #puts "Debug: Auctionscache: has fields. Timethings: #{cached_data[:lastModified]} < #{get_lmt(url,header)} #{cached_data[:lastModified] < get_lmt(url,header)}"
           if cached_data[:lastModified] < get_lmt(url,header)
             cached_data = {:status => 404}
           end
@@ -33,7 +33,7 @@ module Rattlecache
          end
         end
       else
-        puts "Debug: Auctionscache: cache MISS for #{url}"
+        #puts "Debug: Auctionscache: cache MISS for #{url}"
       end
       cached_data
     end
@@ -49,7 +49,7 @@ module Rattlecache
     # @param header [Hash] the Hash of headers for a api request
     def get_lmt(url,header)
       cached_data = @backend.get(sanitize(generic_auctions_url(url)))
-      puts "Debug: get_lmt() cache result for generic url: #{cached_data[:status]}"
+      #puts "Debug: get_lmt() cache result for generic url: #{cached_data[:status]}"
       # if the object was not in the cache or it is expired
       if cached_data[:status] != 200 or generic_needs_request?(cached_data[:header],cached_data[:lastModified])
         # request it from the api

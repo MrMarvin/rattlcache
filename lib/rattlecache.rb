@@ -31,15 +31,12 @@ module Rattlecache
       # what to do with this request?
       case request_type(url)
         when "guild"
-          puts "Debug: its a guild related request!"
           require 'caches/Fieldsrequestcache'
           Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
         when "character"
-          puts "Debug: its a character related request!"
           require 'caches/Fieldsrequestcache'
           Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
         when /auction.*/
-          puts "Debug: its a auchtion related request!"
           require 'caches/Auctionscache'
           Rattlecache::Auctionscache.new(@backend,@adapter).get(url,header)
         when "item"
@@ -47,7 +44,6 @@ module Rattlecache
           # a week in seconds: 60*60*24*7 = 604800
           check_and_return(@backend.get(sanitize(url)),604800)
         else
-          puts "Debug: its a boring request!"
           check_and_return(@backend.get(sanitize(url)))
       end
     end
@@ -82,7 +78,7 @@ module Rattlecache
     # @param headerline [Hash]
     # @param mtime [Time]
     # @return [TrueClass|FalseClass]
-    def generic_needs_request?(headerline,mtime)
+    def generic_needs_request?(headerline,mtime,alternative_living_time = 3600)
       header = JSON.parse(headerline)
       #header["date"][0] is a String with CGI.rfc1123_date() encoded time,
       # as there is no easy method to inverse this coding, I will keep using the files mtime
@@ -95,7 +91,7 @@ module Rattlecache
         else
           # if we dont find any hint, pull it again!
           puts "Warning: Cache couldn't find any hint if this object is still valid!"
-          true
+          mtime+alternative_living_time < Time.now()
         end
       end
     end
@@ -108,7 +104,7 @@ module Rattlecache
     # @return [String]
     def sanitize(objectKey)
       # strip scheme, sort paramters and encode for safty
-      urlObj = URI.parse(objectKey)
+      urlObj = URI.parse(URI.encode(objectKey))
       key = urlObj.host
       key << urlObj.path
       key << sort_params(urlObj.query)
@@ -134,7 +130,7 @@ module Rattlecache
     # @return [String]
     def request_type(objectKey)
       #[0] = "". [1]= "api". [2]="wow", [3]= what we want
-      URI.parse(objectKey).path.split("/")[3]
+      URI.parse(URI.encode(objectKey)).path.split("/")[3]
     end
 
     # @param query [String]
