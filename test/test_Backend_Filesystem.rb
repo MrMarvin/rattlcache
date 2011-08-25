@@ -66,8 +66,8 @@ class MyTest < Test::Unit::TestCase
     @cache.post(testobject)
     res = @cache.get(testobject[:key])
     assert_instance_of(Hash,res)
-    # assert that this is 404, cause the object has no validation information
-    assert_equal(404,res[:status])
+    # assert that this is 200, cause the object has no validation information
+    assert_equal(200,res[:status])
 
     testobject[:header] = {
         "foo" => ["bar-thishastobethere-baz"],

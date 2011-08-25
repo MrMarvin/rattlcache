@@ -9,9 +9,13 @@ module Rattlecache
     # @param backend [Symbol]
     # @param adapter [Battlenet::Adapter::AbstractAdapter]
     def initialize(backend = :filesystem, adapter = nil)
-      puts "Debug: rattlecache adapter: #{adapter}"
       @adapter = adapter
       @backend = Rattlecache::Backend.fetch(backend)
+
+      @status = Hash.new
+      @status[:hits] = 0
+      @status[:misses] = 0
+      @status[:posts] = 0
     end
 
     @request_pragmas = {
@@ -32,20 +36,26 @@ module Rattlecache
       case request_type(url)
         when "guild"
           require 'caches/Fieldsrequestcache'
-          Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
+          res = Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
         when "character"
           require 'caches/Fieldsrequestcache'
-          Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
+          res = Rattlecache::Fieldsrequestcache.new(@backend,@adapter).get(url,header)
         when /auction.*/
           require 'caches/Auctionscache'
-          Rattlecache::Auctionscache.new(@backend,@adapter).get(url,header)
+          res = Rattlecache::Auctionscache.new(@backend,@adapter).get(url,header)
         when "item"
           # for items it seems reasonable to cache them at least for a week
           # a week in seconds: 60*60*24*7 = 604800
-          check_and_return(@backend.get(sanitize(url)),604800)
+          res = check_and_return(@backend.get(sanitize(url)),604800)
         else
-          check_and_return(@backend.get(sanitize(url)))
+          res =  check_and_return(@backend.get(sanitize(url)))
       end
+      if res[:status] == 200
+        @status[:hits] +=1
+      else
+        @status[:misses] +=1
+      end
+      res
     end
 
     def check_and_return(backend_result,given_time = nil)
@@ -63,6 +73,7 @@ module Rattlecache
 
     # @param object [Hash]
     def post(object)
+      @status[:posts] += 1
       #puts "Cache class puts: #{object[:key]}"
       @backend.post({:key => sanitize(object[:key]), :header => object[:header], :data => object[:data]})
     end
@@ -145,6 +156,29 @@ module Rattlecache
     def request_raw(url,header)
       req = @adapter.get(url,header,true)
       req.get(url,header)
+    end
+
+    def status(options = {})
+      puts "Rattlecache: STATUS:"
+      puts "\tentries in cache: #{entries()}"
+      puts "\trequests served: #{(hits+misses)}, hits: #{hits()} (#{(100*(hits()/(hits()+misses()))).to_i}%), misses: #{misses()} (#{(100*(misses()/(hits()+misses()))).to_i}%)"
+      puts "\tposts to cache: #{posts}"
+    end
+
+    def entries()
+      @backend.entries()
+    end
+
+    def hits()
+      @status[:hits]
+    end
+
+    def misses()
+      @status[:misses]
+    end
+
+    def posts()
+      @status[:posts]
     end
 
   end

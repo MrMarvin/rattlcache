@@ -69,6 +69,11 @@ module Rattlecache
         end
       end
 
+      # returns the number of entries in this cache
+      def entries()
+        Dir.entries(@prefix).size - 2
+      end
+
     end
   end
 end

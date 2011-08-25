@@ -66,6 +66,7 @@ module Rattlecache
       url = generic_auctions_url(url)
       # request it from the API:
       got = request_raw(url,header)
+      # FIXME this doesnt count towards the caches post count!
       @backend.post({:key => sanitize(url),:header => got.header.to_hash, :data => got.body}) # and put into cache
     end
 

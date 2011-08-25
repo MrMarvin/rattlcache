@@ -60,6 +60,7 @@ module Rattlecache
       url = url_without_fields(url)
       # request it from the API:
       got = request_raw(url,header)
+      # FIXME this doesnt count towards the caches post count!
       @backend.post({:key => sanitize(url),:header => got.header.to_hash, :data => got.body}) # and put into cache
     end
 
