@@ -51,8 +51,13 @@ module Rattlecache
         # and load the new object
         cached_data = @backend.get(sanitize(url_without_fields(url)))
       end
-      # this a JS milliseconds timestamp, we only do seconds!
-      Time.at(JSON.parse(cached_data[:object])["lastModified"]/1000)
+      begin
+        # this a JS milliseconds timestamp, we only do seconds!
+        Time.at(JSON.parse(cached_data[:object])["lastModified"]/1000)
+      rescue NoMethodError
+        # if the data could not be retrieved, there will be a noMethod on nil object Error!
+        raise
+      end
     end
 
     def request_without_fields(url,header)

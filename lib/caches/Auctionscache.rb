@@ -65,9 +65,14 @@ module Rattlecache
       # need to request the generic guild response
       url = generic_auctions_url(url)
       # request it from the API:
-      got = request_raw(url,header)
-      # FIXME this doesnt count towards the caches post count!
-      @backend.post({:key => sanitize(url),:header => got.header.to_hash, :data => got.body}) # and put into cache
+      begin
+        got = request_raw(url,header)
+        # FIXME this doesnt count towards the caches post count!
+        @backend.post({:key => sanitize(url),:header => got.header.to_hash, :data => got.body}) # and put into cache
+      rescue
+        # some day this will fail! Not sure yet what to do about...
+        raise
+      end
     end
 
 
