@@ -161,7 +161,11 @@ module Rattlecache
     def status(options = {})
       puts "Rattlecache: STATUS:"
       puts "\tentries in cache: #{entries()}"
+      begin
       puts "\trequests served: #{(hits+misses)}, hits: #{hits()} (#{(100*(hits()/(hits()+misses()))).to_i}%), misses: #{misses()} (#{(100*(misses()/(hits()+misses()))).to_i}%)"
+      rescue ZeroDivisionError
+        puts "\t requests served: nothing yet"
+      end
       puts "\tposts to cache: #{posts}"
     end
 
